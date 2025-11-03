@@ -21,10 +21,16 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -r requirements.txt
 
       - name: Run Django checks
         run: python manage.py check
@@ -42,11 +48,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
 
-      - name: Clean install dependencies
+      - name: Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm install
+          # Prefer a clean install using the lockfile; if that fails (lockfile out of sync), fall back to npm install
+          npm ci || npm install
 
       - name: Build frontend
         run: npm run build
