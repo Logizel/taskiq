@@ -8,3 +8,9 @@ createRoot(document.getElementById('root')).render(
     <App />
   </StrictMode>,
 )
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
+fetch(`${baseUrl}/api/`)
+  .then(res => res.json())
+  .then(data => console.log("✅ Connected to backend:", data))
+  .catch(err => console.error("❌ Backend connection error:", err));
